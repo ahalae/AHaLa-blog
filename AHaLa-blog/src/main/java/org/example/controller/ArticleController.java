@@ -1,5 +1,6 @@
 package org.example.controller;
 
+import org.example.domain.ResponseResult;
 import org.example.domain.entity.Article;
 import org.example.service.ArticleService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,8 +15,14 @@ import java.util.List;
 public class ArticleController {
     @Autowired
     private ArticleService articleService;
-    @GetMapping("/list")
-    public List<Article> test(){
-        return articleService.list();
+//    @GetMapping("/list")
+//    public List<Article> test(){
+//        return articleService.list();
+//    }
+
+    @GetMapping("/hotArticleList")
+    public ResponseResult hotArticleList(){
+        ResponseResult result = articleService.hotArticleList();
+        return result;
     }
 }
