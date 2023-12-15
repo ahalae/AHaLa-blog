@@ -13,7 +13,7 @@ import java.io.Serializable;
 /**
  * 文章表(Article)表实体类
  *
- * @author makejava
+ * @author AHaLa
  * @since 2023-11-09 16:05:56
  */
 @SuppressWarnings("serial")

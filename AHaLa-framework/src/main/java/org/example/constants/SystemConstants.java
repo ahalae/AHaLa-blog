@@ -1,7 +1,7 @@
 package org.example.constants;
 
 //字面值(代码中的固定值)处理，把字面值都在这里定义成常量
-public class SystemCanstants {
+public class SystemConstants {
 
     /**
      *  文章是草稿
@@ -22,5 +22,6 @@ public class SystemCanstants {
      * 文章列表每页显示的数据条数
      */
     public static final int ARTICLE_STATUS_SIZE = 10;
-    
+
+    public static final String STATUS_NORMAL = "0";
 }
