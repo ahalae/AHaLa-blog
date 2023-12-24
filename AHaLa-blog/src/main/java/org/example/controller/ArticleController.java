@@ -1,7 +1,6 @@
 package org.example.controller;
 
 import org.example.domain.ResponseResult;
-import org.example.domain.entity.Article;
 import org.example.service.ArticleService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -12,7 +11,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/article")
-public class ArticleController {
+public class  ArticleController {
     @Autowired
     private ArticleService articleService;
 //    @GetMapping("/list")
@@ -22,7 +21,13 @@ public class ArticleController {
 
     @GetMapping("/hotArticleList")
     public ResponseResult hotArticleList(){
-        ResponseResult result = articleService.hotArticleList();
-        return result;
+        return articleService.hotArticleList();
     }
+
+    @GetMapping("/articleList")
+    public ResponseResult articleList(Integer pageNum, Integer pageSize, Long categoryId){
+        return articleService.articleList(pageNum,pageSize,categoryId);
+    }
+
+
 }
