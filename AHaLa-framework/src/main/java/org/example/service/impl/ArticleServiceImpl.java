@@ -6,13 +6,12 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.example.constants.SystemConstants;
 import org.example.domain.ResponseResult;
 import org.example.domain.dto.AddArticleDto;
+import org.example.domain.dto.ArticleListDto;
 import org.example.domain.entity.Article;
 import org.example.domain.entity.ArticleTag;
 import org.example.domain.entity.Category;
-import org.example.domain.vo.ArticleDetailVo;
-import org.example.domain.vo.ArticleListVo;
-import org.example.domain.vo.HotArticleVo;
-import org.example.domain.vo.PageVo;
+import org.example.domain.entity.Tag;
+import org.example.domain.vo.*;
 import org.example.mapper.ArticleMapper;
 import org.example.service.ArticleService;
 import org.example.service.ArticleTagService;
@@ -23,6 +22,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
 import java.util.List;
 import java.util.Objects;
@@ -147,6 +147,43 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
                 .collect(Collectors.toList());
         //添加博客和标签关联
         articleTagService.saveBatch(articleTags);
+        return ResponseResult.okResult();
+    }
+
+    @Override
+    public ResponseResult<PageVo> pageArticleList(Integer pageNum, Integer pageSize, ArticleListDto articleListDto) {
+        //分页查询
+        LambdaQueryWrapper<Article> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(StringUtils.hasText(articleListDto.getTitle()),Article::getTitle,articleListDto.getTitle());
+        queryWrapper.eq(StringUtils.hasText(articleListDto.getSummary()),Article::getSummary,articleListDto.getSummary());
+
+        Page<Article> page =new Page<>();
+        page.setCurrent(pageNum);
+        page.setSize(pageSize);
+        page(page,queryWrapper);
+        //封装数据
+        PageVo pageVo = new PageVo(page.getRecords(),page.getTotal());
+        return ResponseResult.okResult(pageVo);
+    }
+
+    @Override
+    public ResponseResult getArticle(Integer id) {
+        Article article = getById(id);
+        return ResponseResult.okResult(article);
+    }
+
+    @Override
+    public ResponseResult updateArticle(Article article) {
+        Article oldArticle = getById(article.getId());
+        article.setCreateBy(oldArticle.getCreateBy());
+        article.setCreateTime(oldArticle.getCreateTime());
+        updateById(article);
+        return ResponseResult.okResult();
+    }
+
+    @Override
+    public ResponseResult deleteArticle(Integer id) {
+        getBaseMapper().deleteById(id);
         return ResponseResult.okResult();
     }
 }

@@ -2,15 +2,19 @@ package org.example.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import io.jsonwebtoken.lang.Strings;
 import org.example.constants.SystemConstants;
+import org.example.domain.ResponseResult;
 import org.example.domain.entity.Menu;
+import org.example.enums.AppHttpCodeEnum;
+import org.example.exception.SystemException;
 import org.example.mapper.MenuMapper;
 import org.example.service.MenuService;
 import org.example.utils.SecurityUtils;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.function.Function;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 /**
@@ -56,6 +60,48 @@ public class MenuServiceImpl extends ServiceImpl<MenuMapper, Menu> implements Me
         //先找出第一层菜单，并找到其子菜单设置到children中
         List<Menu> menuTree = buildMenuTree(menus,0L);
         return menuTree;
+    }
+
+    @Override
+    public List<Menu> menuList(String status, String menuName) {
+        LambdaQueryWrapper<Menu> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(Strings.hasText(status),Menu::getStatus,status);
+        queryWrapper.eq(Strings.hasText(menuName),Menu::getMenuName,menuName);
+        queryWrapper.orderBy(true,true,Menu::getId,Menu::getOrderNum);
+        List<Menu> menus = list(queryWrapper);
+        return menus;
+    }
+
+    @Override
+    public ResponseResult addMenu(Menu menu) {
+        save(menu);
+        return ResponseResult.okResult();
+    }
+
+    @Override
+    public ResponseResult getMenu(Integer id) {
+        Menu menu = getBaseMapper().selectById(id);
+        return ResponseResult.okResult(menu);
+    }
+
+    @Override
+    public ResponseResult updateMenu(Menu menu) {
+        if(menu.getParentId().equals(menu.getId())){
+            throw new SystemException(AppHttpCodeEnum.SYSTEM_ERROR);
+        }
+        updateById(menu);
+        return ResponseResult.okResult();
+    }
+
+    @Override
+    public ResponseResult deleteMenu(Integer id) {
+        Menu menu = getById(id);
+        List<Menu> menuTree = buildMenuTree(list(),id);
+        if(!menuTree.isEmpty()){
+            throw new SystemException(AppHttpCodeEnum.SYSTEM_ERROR);
+        }
+        removeById(id);
+        return ResponseResult.okResult();
     }
 
     private List<Menu> buildMenuTree(List<Menu> menus, long parentId) {
