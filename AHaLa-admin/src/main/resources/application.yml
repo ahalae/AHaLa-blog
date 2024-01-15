@@ -44,3 +44,8 @@ mybatis-plus:
       logic-delete-value: 1
       logic-not-delete-value: 0
       id-type: auto
+
+oss:
+  accessKey: lbIGhu4EcqHZYph-0BT4oRbyXv0TFDbjYh7yzVtf
+  secretKey: 1MVwiP56WNEfwkWflv_Rs3qjy7Iu1Yb67A5z4rlY
+  bucket: ahala-blog

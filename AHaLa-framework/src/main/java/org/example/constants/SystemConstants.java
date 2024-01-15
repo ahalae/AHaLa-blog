@@ -40,4 +40,5 @@ public class SystemConstants {
     public static final String BUTTON = "F";
 
     public static final Integer TAG_STATUS_DELETE = 1;
+    public static final String ADMIN = "1";
 }

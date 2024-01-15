@@ -6,7 +6,7 @@ import org.example.constants.SystemConstants;
 import org.example.domain.ResponseResult;
 import org.example.domain.entity.Article;
 import org.example.domain.entity.Category;
-import org.example.domain.vo.categoryVo;
+import org.example.domain.vo.CategoryVo;
 import org.example.mapper.CategoryMapper;
 import org.example.service.ArticleService;
 import org.example.service.CategoryService;
@@ -46,7 +46,16 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, Category> i
                 .filter(catagory->SystemConstants.STATUS_NORMAL.equals(catagory.getStatus()))
                 .collect(Collectors.toList());
         //封装vo
-        List<categoryVo> categoryVos = BeanCopyUtils.copyBeanList(categories, categoryVo.class);
+        List<CategoryVo> categoryVos = BeanCopyUtils.copyBeanList(categories, CategoryVo.class);
+        return ResponseResult.okResult(categoryVos);
+    }
+
+    @Override
+    public ResponseResult listAllCategory() {
+        LambdaQueryWrapper<Category> queryWrapper=new LambdaQueryWrapper<>();
+        queryWrapper.eq(Category::getStatus,SystemConstants.STATUS_NORMAL);
+        List<Category> categoryList = list(queryWrapper);
+        List<CategoryVo> categoryVos = BeanCopyUtils.copyBeanList(categoryList, CategoryVo.class);
         return ResponseResult.okResult(categoryVos);
     }
 }
