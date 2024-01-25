@@ -4,12 +4,17 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.example.domain.ResponseResult;
+import org.example.domain.dto.AddRoleDto;
 import org.example.domain.dto.RoleListDto;
 import org.example.domain.entity.Role;
+import org.example.domain.entity.RoleMenu;
 import org.example.domain.entity.Tag;
 import org.example.domain.vo.PageVo;
 import org.example.mapper.RoleMapper;
+import org.example.service.RoleMenuService;
 import org.example.service.RoleService;
+import org.example.utils.BeanCopyUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
@@ -24,6 +29,9 @@ import java.util.List;
  */
 @Service("roleService")
 public class RoleServiceImpl extends ServiceImpl<RoleMapper, Role> implements RoleService {
+
+    @Autowired
+    private RoleMenuService roleMenuService;
 
     @Override
     public List<String> selectRoleKeyByUserId(Long id) {
@@ -58,6 +66,51 @@ public class RoleServiceImpl extends ServiceImpl<RoleMapper, Role> implements Ro
         Role role = getById(roleListDto.getRoleId());
         role.setStatus(roleListDto.getStatus());
         save(role);
+        return ResponseResult.okResult();
+    }
+
+
+    @Override
+    public ResponseResult addRole(AddRoleDto addRoleDto) {
+        Role role = BeanCopyUtils.copyBean(addRoleDto, Role.class);
+        save(role);
+        for (String menuId : addRoleDto.getMenuIds()) {
+            RoleMenu roleMenu=new RoleMenu(role.getId(),Long.parseLong(menuId));
+            roleMenuService.save(roleMenu);
+        }
+
+        return ResponseResult.okResult();
+    }
+
+    @Override
+    public ResponseResult getRole(Integer id) {
+        Role role = getById(id);
+        return ResponseResult.okResult(role);
+    }
+
+    @Override
+    public ResponseResult updateRole(AddRoleDto addRoleDto) {
+
+        LambdaQueryWrapper<RoleMenu> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(RoleMenu::getRoleId,addRoleDto.getId());
+        roleMenuService.remove(queryWrapper);
+        for (String menuId : addRoleDto.getMenuIds()) {
+            RoleMenu roleMenu=new RoleMenu(addRoleDto.getId(),Long.parseLong(menuId));
+            roleMenuService.save(roleMenu);
+        }
+
+        Role role = BeanCopyUtils.copyBean(addRoleDto, Role.class);
+        updateById(role);
+
+        return ResponseResult.okResult();
+    }
+
+    @Override
+    public ResponseResult deleteRole(Integer id) {
+        LambdaQueryWrapper<RoleMenu> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(RoleMenu::getRoleId,id);
+        roleMenuService.remove(queryWrapper);
+        removeById(id);
         return ResponseResult.okResult();
     }
 }

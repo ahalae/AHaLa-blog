@@ -1,6 +1,7 @@
 package org.example.controller;
 
 import org.example.domain.ResponseResult;
+import org.example.domain.dto.AddRoleDto;
 import org.example.domain.dto.RoleListDto;
 import org.example.domain.dto.TagListDto;
 import org.example.domain.vo.PageVo;
@@ -23,4 +24,24 @@ public class RoleContorller {
     public ResponseResult changeStatus(@RequestBody RoleListDto roleListDto){
         return roleService.changeStatus(roleListDto);
     }
+
+    @PostMapping
+    public ResponseResult addRole(@RequestBody AddRoleDto addRoleDto){
+        return roleService.addRole(addRoleDto);
+    }
+
+    @GetMapping("/{id}")
+    public ResponseResult getRole(@PathVariable("id") Integer id){
+        return roleService.getRole(id);
+    }
+
+    @PutMapping
+    public ResponseResult updateRole(@RequestBody AddRoleDto addRoleDto){
+        return roleService.updateRole(addRoleDto);
+    }
+
+    @DeleteMapping("{id}")
+    public ResponseResult deleteRole(@PathVariable Integer id){return roleService.deleteRole(id);}
+
+
 }

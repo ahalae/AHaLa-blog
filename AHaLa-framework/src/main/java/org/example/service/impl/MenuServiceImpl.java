@@ -6,15 +6,20 @@ import io.jsonwebtoken.lang.Strings;
 import org.example.constants.SystemConstants;
 import org.example.domain.ResponseResult;
 import org.example.domain.entity.Menu;
+import org.example.domain.entity.RoleMenu;
+import org.example.domain.vo.RoleMenuTreeSelectVo;
+import org.example.domain.vo.TreeSelectVo;
 import org.example.enums.AppHttpCodeEnum;
 import org.example.exception.SystemException;
 import org.example.mapper.MenuMapper;
+import org.example.mapper.RoleMenuMapper;
 import org.example.service.MenuService;
+import org.example.service.RoleMenuService;
 import org.example.utils.SecurityUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Objects;
 import java.util.stream.Collectors;
 
 /**
@@ -25,6 +30,9 @@ import java.util.stream.Collectors;
  */
 @Service("menuService")
 public class MenuServiceImpl extends ServiceImpl<MenuMapper, Menu> implements MenuService {
+
+    @Autowired
+    private RoleMenuService roleMenuService;
 
     @Override
     public List<String> selectPermsByUserId(Long id) {
@@ -95,13 +103,54 @@ public class MenuServiceImpl extends ServiceImpl<MenuMapper, Menu> implements Me
 
     @Override
     public ResponseResult deleteMenu(Integer id) {
-        Menu menu = getById(id);
         List<Menu> menuTree = buildMenuTree(list(),id);
         if(!menuTree.isEmpty()){
             throw new SystemException(AppHttpCodeEnum.SYSTEM_ERROR);
         }
         removeById(id);
         return ResponseResult.okResult();
+    }
+
+    @Override
+    public List<TreeSelectVo> treeSelect() {
+        List<Menu> menuTree = list();
+        List<TreeSelectVo> treeSelectVos = menuTree.stream()
+                .map(o -> new TreeSelectVo(o.getId(), o.getMenuName(), o.getParentId(),null))
+                .collect(Collectors.toList());
+        treeSelectVos=buildTreeSelectVoTree(treeSelectVos,0L);
+        return treeSelectVos;
+    }
+
+    @Override
+    public ResponseResult roleMenuTreeSelect(Integer id) {
+        //获得菜单树
+        List<TreeSelectVo> treeSelectVos = treeSelect();
+        //获得权限列表
+        LambdaQueryWrapper<RoleMenu> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(RoleMenu::getRoleId,id);
+        List<RoleMenu> roleMenus = roleMenuService.list(queryWrapper);
+        List<String> checkedKeys = roleMenus.stream()
+                .map(o -> o.getMenuId().toString())
+                .collect(Collectors.toList());
+        RoleMenuTreeSelectVo roleMenuTreeSelectVo = new RoleMenuTreeSelectVo(treeSelectVos, checkedKeys);
+        return ResponseResult.okResult(roleMenuTreeSelectVo);
+    }
+
+    private List<TreeSelectVo> buildTreeSelectVoTree(List<TreeSelectVo> treeSelectVos, long parentId) {
+        List<TreeSelectVo> treeSelectVoTree = treeSelectVos.stream()
+                .filter(treeSelectVo -> treeSelectVo.getParentId().equals(parentId))
+                .map(treeSelectVo -> treeSelectVo.setChildren(getTreeSelectVoChildren(treeSelectVo,treeSelectVos)))
+                .collect(Collectors.toList());
+
+        return treeSelectVoTree;
+    }
+
+    private List<TreeSelectVo> getTreeSelectVoChildren(TreeSelectVo treeSelectVo, List<TreeSelectVo> treeSelectVos) {
+        List<TreeSelectVo> childrenList = treeSelectVos.stream()
+                .filter(m -> m.getParentId().equals(treeSelectVo.getId()))
+                .map(m-> m.setChildren(getTreeSelectVoChildren(m,treeSelectVos)))
+                .collect(Collectors.toList());
+        return childrenList;
     }
 
     private List<Menu> buildMenuTree(List<Menu> menus, long parentId) {

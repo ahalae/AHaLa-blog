@@ -38,4 +38,14 @@ public class MenuController {
         return menuService.deleteMenu(id);
     }
 
+    @GetMapping("/treeselect")
+    public ResponseResult treeSelect(){
+        return ResponseResult.okResult(menuService.treeSelect());
+    }
+
+    @GetMapping("/roleMenuTreeselect/{id}")
+    public ResponseResult roleMenuTreeSelect(@PathVariable("id") Integer id){
+        return menuService.roleMenuTreeSelect(id);
+    }
+
 }

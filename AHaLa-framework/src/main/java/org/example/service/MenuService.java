@@ -3,6 +3,7 @@ package org.example.service;
 import com.baomidou.mybatisplus.extension.service.IService;
 import org.example.domain.ResponseResult;
 import org.example.domain.entity.Menu;
+import org.example.domain.vo.TreeSelectVo;
 
 import java.util.List;
 
@@ -28,4 +29,8 @@ public interface MenuService extends IService<Menu> {
     ResponseResult updateMenu(Menu menu);
 
     ResponseResult deleteMenu(Integer id);
+
+    List<TreeSelectVo> treeSelect();
+
+    ResponseResult roleMenuTreeSelect(Integer id);
 }
