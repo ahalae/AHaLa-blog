@@ -3,17 +3,18 @@ package org.example.controller;
 import com.alibaba.excel.EasyExcel;
 import com.alibaba.fastjson.JSON;
 import org.example.domain.ResponseResult;
+import org.example.domain.dto.UserListDto;
 import org.example.domain.entity.Category;
+import org.example.domain.vo.CategoryVo;
 import org.example.domain.vo.ExcelCategoryVo;
+import org.example.domain.vo.PageVo;
 import org.example.enums.AppHttpCodeEnum;
 import org.example.service.CategoryService;
 import org.example.utils.BeanCopyUtils;
 import org.example.utils.WebUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletResponse;
 import java.util.List;
@@ -49,5 +50,29 @@ public class CategoryController {
             ResponseResult result = ResponseResult.errorResult(AppHttpCodeEnum.SYSTEM_ERROR);
             WebUtils.renderString(response, JSON.toJSONString(result));
         }
+    }
+
+    @GetMapping("/list")
+    public ResponseResult<PageVo> list(Integer pageNum, Integer pageSize, String name,String status){
+        return categoryService.pageCategoryList(pageNum,pageSize,name,status);
+    }
+
+    @PostMapping
+    public ResponseResult addCategory(@RequestBody CategoryVo categoryVo){
+        return categoryService.addCategory(categoryVo);
+    }
+
+    @GetMapping("{id}")
+    public ResponseResult getCategory(@PathVariable("id") Long id){
+        return categoryService.getCategory(id);
+    }
+    @PutMapping
+    public ResponseResult updateCategory(@RequestBody CategoryVo categoryVo){
+        return categoryService.updateCategory(categoryVo);
+    }
+
+    @DeleteMapping("{id}")
+    public ResponseResult deleteCategory(@PathVariable("id") Long id){
+        return categoryService.deleteCategory(id);
     }
 }
