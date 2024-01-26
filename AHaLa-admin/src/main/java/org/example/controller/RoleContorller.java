@@ -43,5 +43,10 @@ public class RoleContorller {
     @DeleteMapping("{id}")
     public ResponseResult deleteRole(@PathVariable Integer id){return roleService.deleteRole(id);}
 
+    @GetMapping("/listAllRole")
+    public ResponseResult listAllRole(){
+        return roleService.listAllRole();
+    }
+
 
 }

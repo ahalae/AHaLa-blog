@@ -31,4 +31,6 @@ public interface RoleService extends IService<Role> {
     ResponseResult updateRole(AddRoleDto addRoleDto);
 
     ResponseResult deleteRole(Integer id);
+
+    ResponseResult listAllRole();
 }

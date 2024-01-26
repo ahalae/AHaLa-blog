@@ -3,6 +3,7 @@ package org.example.service.impl;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import org.example.constants.SystemConstants;
 import org.example.domain.ResponseResult;
 import org.example.domain.dto.AddRoleDto;
 import org.example.domain.dto.RoleListDto;
@@ -65,7 +66,7 @@ public class RoleServiceImpl extends ServiceImpl<RoleMapper, Role> implements Ro
     public ResponseResult changeStatus(RoleListDto roleListDto) {
         Role role = getById(roleListDto.getRoleId());
         role.setStatus(roleListDto.getStatus());
-        save(role);
+        updateById(role);
         return ResponseResult.okResult();
     }
 
@@ -112,5 +113,13 @@ public class RoleServiceImpl extends ServiceImpl<RoleMapper, Role> implements Ro
         roleMenuService.remove(queryWrapper);
         removeById(id);
         return ResponseResult.okResult();
+    }
+
+    @Override
+    public ResponseResult listAllRole() {
+        LambdaQueryWrapper<Role> queryWrapper =new LambdaQueryWrapper<>();
+        queryWrapper.eq(Role::getStatus, SystemConstants.STATUS_NORMAL);
+        List<Role> roles = list(queryWrapper);
+        return ResponseResult.okResult(roles);
     }
 }
